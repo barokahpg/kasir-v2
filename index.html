@@ -51,6 +51,7 @@
             margin: 0;
         }
         input[type=number] {
+            appearance: textfield;
             -moz-appearance: textfield;
         }
         .thermal-print { font-family: 'Courier New', monospace; }
@@ -239,7 +240,7 @@
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-xs md:text-sm text-gray-600">Stok Menipis:</span>
-                                    <span id="lowStockQuick" class="text-xs md:text-sm font-medium text-red-600">0</span>
+                                    <span id="lowStockQuick" class="text-xs md:text-sm font-medium text-red-600 cursor-pointer hover:text-red-800 transition-colors" onclick="showLowStockDetails()">0</span>
                                 </div>
                             </div>
                         </div>
@@ -341,7 +342,7 @@
                             <div class="ml-5 w-0 flex-1">
                                 <dl>
                                     <dt class="text-sm font-medium text-gray-500 truncate">Stok Menipis</dt>
-                                    <dd id="lowStock" class="text-lg font-medium text-gray-900">0</dd>
+                                    <dd id="lowStock" class="text-lg font-medium text-gray-900 cursor-pointer hover:text-red-600 transition-colors" onclick="showLowStockDetails()">0</dd>
                                 </dl>
                             </div>
                         </div>
@@ -361,6 +362,79 @@
                         <h3 class="text-lg font-medium text-gray-900 mb-4">Produk Terlaris</h3>
                         <div id="topProducts" class="space-y-3">
                             <!-- Top products will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profit/Loss Analysis -->
+                <div class="mt-6 bg-white bg-opacity-95 backdrop-blur-sm rounded-lg shadow p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-medium text-gray-900">Analisis Laba/Rugi</h3>
+                        <div class="flex gap-2">
+                            <select id="profitTimeRange" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                                <option value="today">Hari Ini</option>
+                                <option value="yesterday">Kemarin</option>
+                                <option value="week">7 Hari Terakhir</option>
+                                <option value="month">Bulan Ini</option>
+                                <option value="last_month">Bulan Lalu</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Profit Summary Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-green-50 rounded-lg p-4">
+                            <h4 class="text-sm text-green-600 mb-1">Total Penjualan</h4>
+                            <p id="totalSalesAmount" class="text-xl font-bold text-green-700">Rp 0</p>
+                        </div>
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <h4 class="text-sm text-blue-600 mb-1">Modal</h4>
+                            <p id="totalCostAmount" class="text-xl font-bold text-blue-700">Rp 0</p>
+                        </div>
+                        <div class="bg-purple-50 rounded-lg p-4">
+                            <h4 class="text-sm text-purple-600 mb-1">Laba Kotor</h4>
+                            <p id="grossProfitAmount" class="text-xl font-bold text-purple-700">Rp 0</p>
+                        </div>
+                        <div class="bg-yellow-50 rounded-lg p-4">
+                            <h4 class="text-sm text-yellow-600 mb-1">Margin</h4>
+                            <p id="profitMargin" class="text-xl font-bold text-yellow-700">0%</p>
+                        </div>
+                    </div>
+
+                    <!-- Profit Chart -->
+                    <div class="border rounded-lg p-4 mb-6">
+                        <canvas id="profitChart" width="400" height="200"></canvas>
+                    </div>
+
+                    <!-- Daily Profit Table -->
+                    <div class="border rounded-lg p-4">
+                        <h4 class="text-lg font-medium text-gray-900 mb-4">Rincian Keuntungan Harian</h4>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Penjualan</th>
+                                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Modal</th>
+                                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Laba Kotor</th>
+                                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Margin</th>
+                                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Transaksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dailyProfitTable" class="bg-white divide-y divide-gray-200">
+                                    <!-- Daily profit rows will be rendered here -->
+                                </tbody>
+                                <tfoot class="bg-gray-50 font-medium">
+                                    <tr>
+                                        <td class="px-4 py-3 text-sm">TOTAL</td>
+                                        <td id="totalTableSales" class="px-4 py-3 text-right text-sm text-green-600">Rp 0</td>
+                                        <td id="totalTableCost" class="px-4 py-3 text-right text-sm text-blue-600">Rp 0</td>
+                                        <td id="totalTableProfit" class="px-4 py-3 text-right text-sm text-purple-600">Rp 0</td>
+                                        <td id="totalTableMargin" class="px-4 py-3 text-right text-sm text-yellow-600">0%</td>
+                        <td id="totalTableTransactions" class="px-4 py-3 text-center text-sm">0</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -640,11 +714,87 @@
         let isScanning = false;
         let codeReader = null;
 
+        // Low Stock Modal Function
+        function showLowStockDetails() {
+            const lowStockItems = products.filter(p => p.stock <= p.minStock);
+            const modalContent = document.createElement('div');
+            modalContent.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modalContent.innerHTML = `
+                <div class="bg-white bg-opacity-95 backdrop-blur-sm rounded-lg p-6 w-full max-w-2xl mx-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-medium text-gray-900">Daftar Produk Stok Menipis</h3>
+                        <button onclick="this.closest('.fixed').remove()" class="text-gray-500 hover:text-gray-700">✕</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Produk</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Stok</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Min. Stok</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Harga Modal</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Harga Jual</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                ${lowStockItems.map(item => `
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-3">
+                                            <div class="text-sm font-medium text-gray-900">${item.name}</div>
+                                            <div class="text-xs text-gray-500">ID: ${item.id}</div>
+                                        </td>
+                                        <td class="px-4 py-3 text-center ${item.stock <= 0 ? 'text-red-600 font-bold' : 'text-orange-600'}">
+                                            ${item.stock}
+                                        </td>
+                                        <td class="px-4 py-3 text-center text-gray-500">
+                                            ${item.minStock}
+                                        </td>
+                                        <td class="px-4 py-3 text-right text-gray-900">
+                                            Rp ${item.cost.toLocaleString('id-ID')}
+                                        </td>
+                                        <td class="px-4 py-3 text-right text-gray-900">
+                                            Rp ${item.price.toLocaleString('id-ID')}
+                                        </td>
+                                        <td class="px-4 py-3 text-center">
+                                            <span class="px-2 py-1 text-xs font-medium rounded-full ${
+                                                item.stock <= 0 
+                                                    ? 'bg-red-100 text-red-800' 
+                                                    : 'bg-yellow-100 text-yellow-800'
+                                            }">
+                                                ${item.stock <= 0 ? 'Habis' : 'Menipis'}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4 text-right">
+                        <button onclick="this.closest('.fixed').remove()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                            Tutup
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modalContent);
+        }
+
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
             loadData();
             updateTime();
             setInterval(updateTime, 1000);
+            
+            // Initialize low stock click handlers
+            const lowStockElements = ['lowStock', 'lowStockQuick'].map(id => document.getElementById(id));
+            lowStockElements.forEach(element => {
+                if (element) {
+                    element.style.cursor = 'pointer';
+                    element.classList.add('hover:text-red-600', 'transition-colors');
+                    element.onclick = showLowStockDetails;
+                }
+            });
             
             // Monitor online status
             updateOnlineStatus();
@@ -760,6 +910,11 @@
             // Transaction search
             document.getElementById('transactionSearch').addEventListener('input', function(e) {
                 filterTransactions();
+            });
+            
+            // Profit analysis time range
+            document.getElementById('profitTimeRange').addEventListener('change', function(e) {
+                updateProfitAnalysis();
             });
             
             // Date filter
@@ -880,6 +1035,7 @@
             if (tabName === 'laporan') {
                 updateDashboard();
                 renderSalesChart();
+                updateProfitAnalysis(); // Explicitly call profit analysis update
             } else if (tabName === 'produk') {
                 renderProductList();
             } else if (tabName === 'riwayat') {
@@ -1268,17 +1424,17 @@
             const video = document.getElementById('scanner-video');
             const container = document.getElementById('scannerContainer');
             const btn = document.getElementById('scannerBtn');
-            
+
             // Check if ZXing library is available first
             if (typeof ZXing === 'undefined') {
                 showNotification('❌ Library scanner belum dimuat. Coba refresh halaman.', 'error');
                 return;
             }
-            
+
             // Show loading state
             btn.textContent = '⏳ Meminta akses...';
             btn.disabled = true;
-            
+
             // Initialize code reader if not exists
             if (!codeReader) {
                 try {
@@ -1290,204 +1446,64 @@
                     return;
                 }
             }
-            
-            // Check if getUserMedia is supported
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                showNotification('❌ Browser tidak mendukung akses kamera. Gunakan Chrome, Firefox, atau Safari terbaru.', 'error');
-                btn.textContent = '📷 Scan';
-                btn.disabled = false;
-                return;
-            }
-            
-            // Check current permission status first
-            navigator.permissions.query({name: 'camera'}).then(function(result) {
-                console.log('Camera permission status:', result.state);
-                
-                if (result.state === 'denied') {
+
+            // Request camera permission with better constraints
+            const constraints = {
+                video: {
+                    facingMode: { ideal: 'environment' }, // Prefer back camera
+                    width: { ideal: 1280, min: 640 }, // Higher resolution for better accuracy
+                    height: { ideal: 720, min: 480 }
+                }
+            };
+
+            navigator.mediaDevices.getUserMedia(constraints)
+                .then(stream => {
+
+                    container.classList.remove('hidden');
+                    btn.textContent = '⏹ Stop';
+                    btn.disabled = false;
+                    isScanning = true;
+
+                    video.srcObject = stream;
+                    video.play();
+
+                    showNotification('✅ Kamera aktif! Arahkan ke barcode untuk scan otomatis.', 'success');
+
+                    video.addEventListener('loadedmetadata', () => {
+                        codeReader.decodeFromVideoDevice(null, video, (result, err) => {
+                            if (result) {
+                                const barcode = result.text.trim();
+
+                                // Check if product exists
+                                const product = products.find(p => p.barcode && p.barcode.trim() === barcode);
+
+                                if (product) {
+                                    addToCart(product);
+                                    showNotification(`📦 ${product.name} ditambahkan ke keranjang!`, 'success');
+
+                                    // Stop scanner after successful scan
+                                    stopScanner();
+                                } else {
+                                    showNotification(`🔍 Produk dengan barcode ${barcode} tidak ditemukan.`, 'warning');
+                                }
+                            }
+
+                            if (err && err.name !== 'NotFoundException') {
+                                console.log('Scanner error:', err);
+                            }
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error('Camera access error:', error);
                     btn.textContent = '📷 Scan';
                     btn.disabled = false;
-                    
-                    // Show permission reset options
-                    const resetMessage = '❌ Akses kamera sudah ditolak sebelumnya!\n\n' +
-                        '🔧 CARA MENGIZINKAN:\n\n' +
-                        '📱 MOBILE:\n' +
-                        '• Chrome: Tap ikon 🔒 di address bar → Site settings → Camera → Allow\n' +
-                        '• Safari: Tap aA di address bar → Website Settings → Camera → Allow\n\n' +
-                        '💻 DESKTOP:\n' +
-                        '• Chrome: Klik ikon 🔒 di sebelah URL → Camera → Allow\n' +
-                        '• Firefox: Klik ikon 🔒 di address bar → Permissions → Camera → Allow\n' +
-                        '• Edge: Klik ikon 🔒 di address bar → Permissions → Camera → Allow\n\n' +
-                        '🔄 Atau coba reset permission dengan tombol di bawah!';
-                    
-                    showNotification(resetMessage, 'error');
-                    
-                    // Add reset permission button to scanner area
-                    showPermissionResetButton();
-                    return;
-                }
-                
-                // Show helpful message about camera permission
-                if (result.state === 'prompt') {
-                    showNotification('📷 Popup izin kamera akan muncul - Klik "Allow/Izinkan"!', 'warning');
-                } else {
-                    showNotification('📷 Mengaktifkan kamera...', 'warning');
-                }
-                
-                // Request camera permission with better constraints
-                const constraints = {
-                    video: {
-                        facingMode: { ideal: 'environment' }, // Prefer back camera
-                        width: { ideal: 640, min: 320 },
-                        height: { ideal: 480, min: 240 }
-                    }
-                };
-                
-                // Add a small delay to ensure the permission dialog appears
-                setTimeout(() => {
-                    navigator.mediaDevices.getUserMedia(constraints)
-                    .then(stream => {
-                        // Success - show scanner UI
-                        container.classList.remove('hidden');
-                        btn.textContent = '⏹ Stop';
-                        btn.disabled = false;
-                        isScanning = true;
-                        
-                        video.srcObject = stream;
-                        video.play();
-                        
-                        showNotification('✅ Kamera aktif! Arahkan ke barcode untuk scan otomatis.', 'success');
-                        
-                        // Start decoding after video is ready
-                        video.addEventListener('loadedmetadata', () => {
-                            codeReader.decodeFromVideoDevice(null, video, (result, err) => {
-                                if (result) {
-                                    const barcode = result.text.trim();
-                                    
-                                    // Check if product exists (improved matching)
-                                    const product = products.find(p => p.barcode && p.barcode.trim() === barcode);
-                                    
-                                    if (product) {
-                                        // Product found - add to cart automatically and keep scanning
-                                        addToCart(product);
-                                        showNotification(`📦 ${product.name} ditambahkan ke keranjang! Scanner tetap aktif.`, 'success');
-                                        
-                                        // Keep scanner running - don't stop
-                                    } else {
-                                        // Product not found - stop scanner and show add modal
-                                        stopScanner();
-                                        document.getElementById('productSearch').value = barcode;
-                                        filterProducts(barcode);
-                                        showNotification(`🔍 Produk dengan barcode ${barcode} tidak ditemukan. Silakan tambah produk baru.`, 'warning');
-                                        showAddProductModalWithBarcode(barcode);
-                                    }
-                                }
-                                
-                                if (err && err.name !== 'NotFoundException') {
-                                    console.log('Scanner error:', err);
-                                }
-                            });
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Camera access error:', error);
-                        btn.textContent = '📷 Scan';
-                        btn.disabled = false;
-                        
-                        let errorMessage = '';
-                        let helpMessage = '';
-                        
-                        if (error.name === 'NotAllowedError') {
-                            errorMessage = '❌ Akses kamera ditolak!';
-                            helpMessage = '\n\n🔧 Cara mengizinkan kamera:\n\n' +
-                                        '📱 MOBILE:\n' +
-                                        '• Chrome: Tap ikon kamera di address bar → Izinkan\n' +
-                                        '• Safari: Settings → Safari → Camera → Izinkan\n\n' +
-                                        '💻 DESKTOP:\n' +
-                                        '• Chrome: Klik ikon kamera di address bar → Izinkan\n' +
-                                        '• Firefox: Klik ikon kamera di address bar → Izinkan\n' +
-                                        '• Edge: Klik ikon kamera di address bar → Izinkan\n\n' +
-                                        '🔄 Refresh halaman setelah mengizinkan!';
-                        } else if (error.name === 'NotFoundError') {
-                            errorMessage = '❌ Kamera tidak ditemukan!';
-                            helpMessage = '\n\n• Pastikan perangkat memiliki kamera\n• Tutup aplikasi lain yang menggunakan kamera\n• Coba refresh halaman';
-                        } else if (error.name === 'NotSupportedError') {
-                            errorMessage = '❌ Browser tidak mendukung kamera!';
-                            helpMessage = '\n\n• Gunakan Chrome, Firefox, atau Safari terbaru\n• Pastikan menggunakan HTTPS (bukan HTTP)\n• Update browser ke versi terbaru';
-                        } else if (error.name === 'NotReadableError') {
-                            errorMessage = '❌ Kamera sedang digunakan aplikasi lain!';
-                            helpMessage = '\n\n• Tutup aplikasi kamera lain\n• Restart browser\n• Coba lagi setelah beberapa saat';
-                        } else {
-                            errorMessage = '❌ Error kamera: ' + error.message;
-                            helpMessage = '\n\n• Coba refresh halaman\n• Restart browser\n• Periksa koneksi internet';
-                        }
-                        
-                        showNotification(errorMessage + helpMessage, 'error');
-                    });
-                }, 100);
-                
-            }).catch(function(error) {
-                // Fallback if permissions API not supported
-                console.log('Permissions API not supported, proceeding with getUserMedia');
-                
-                showNotification('📷 Popup izin kamera akan muncul - Klik "Allow/Izinkan"!', 'warning');
-                
-                const constraints = {
-                    video: {
-                        facingMode: { ideal: 'environment' },
-                        width: { ideal: 640, min: 320 },
-                        height: { ideal: 480, min: 240 }
-                    }
-                };
-                
-                setTimeout(() => {
-                    navigator.mediaDevices.getUserMedia(constraints)
-                    .then(stream => {
-                        container.classList.remove('hidden');
-                        btn.textContent = '⏹ Stop';
-                        btn.disabled = false;
-                        isScanning = true;
-                        
-                        video.srcObject = stream;
-                        video.play();
-                        
-                        showNotification('✅ Kamera aktif! Arahkan ke barcode untuk scan otomatis.', 'success');
-                        
-                        video.addEventListener('loadedmetadata', () => {
-                            codeReader.decodeFromVideoDevice(null, video, (result, err) => {
-                                if (result) {
-                                    const barcode = result.text.trim();
-                                    const product = products.find(p => p.barcode && p.barcode.trim() === barcode);
-                                    
-                                    if (product) {
-                                        addToCart(product);
-                                        showNotification(`📦 ${product.name} ditambahkan ke keranjang! Scanner tetap aktif.`, 'success');
-                                    } else {
-                                        stopScanner();
-                                        document.getElementById('productSearch').value = barcode;
-                                        filterProducts(barcode);
-                                        showNotification(`🔍 Produk dengan barcode ${barcode} tidak ditemukan. Silakan tambah produk baru.`, 'warning');
-                                        showAddProductModalWithBarcode(barcode);
-                                    }
-                                }
-                                
-                                if (err && err.name !== 'NotFoundException') {
-                                    console.log('Scanner error:', err);
-                                }
-                            });
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Camera access error:', error);
-                        btn.textContent = '📷 Scan';
-                        btn.disabled = false;
-                        
-                        let errorMessage = '❌ Akses kamera gagal: ' + error.name;
-                        let helpMessage = '\n\n🔧 Solusi:\n• Refresh halaman dan coba lagi\n• Pastikan menggunakan HTTPS\n• Periksa pengaturan kamera browser\n• Coba browser lain (Chrome/Firefox)';
-                        
-                        showNotification(errorMessage + helpMessage, 'error');
-                    });
-                }, 100);
-            });
+
+                    let errorMessage = '❌ Akses kamera gagal: ' + error.name;
+                    let helpMessage = '\n\n🔧 Solusi:\n• Refresh halaman dan coba lagi\n• Pastikan menggunakan HTTPS\n• Periksa pengaturan kamera browser\n• Coba browser lain (Chrome/Firefox)';
+
+                    showNotification(errorMessage + helpMessage, 'error');
+                });
         }
 
         function stopScanner() {
@@ -1777,10 +1793,10 @@
                 cartItem.className = 'bg-white border rounded-lg p-2 md:p-3 shadow-sm';
                 cartItem.innerHTML = `
                     <div class="flex justify-between items-start mb-2">
-                        <div class="flex-1 min-w-0">
-                            <h5 class="font-medium text-xs md:text-sm text-gray-800 truncate">${item.name}</h5>
-                            <p class="text-xs text-gray-500">${item.quantity} x Rp ${item.price.toLocaleString('id-ID')}</p>
-                            ${item.discount > 0 ? `<p class="text-xs text-red-600">Diskon: -Rp ${item.discount.toLocaleString('id-ID')}</p>` : ''}
+                        <div>
+                            <div class="font-medium text-sm">${item.name}</div>
+                            <div class="text-xs text-gray-500">${item.quantity} x Rp ${item.price.toLocaleString('id-ID')}</div>
+                            ${item.discount > 0 ? `<div class="text-xs text-red-600">Diskon: -Rp ${item.discount.toLocaleString('id-ID')}</div>` : ''}
                         </div>
                         <div class="text-right ml-2">
                             <p class="font-semibold text-xs md:text-sm text-blue-600">Rp ${itemTotal.toLocaleString('id-ID')}</p>
@@ -1968,7 +1984,7 @@
                         <div class="flex justify-between text-sm">
                             <div>
                                 <div>${item.name}</div>
-                                <div class="text-xs text-gray-600">${item.quantity} x Rp ${item.price.toLocaleString('id-ID')}</div>
+                                <div class="text-xs text-gray-500">${item.quantity} x Rp ${item.price.toLocaleString('id-ID')}</div>
                                 ${item.discount > 0 ? `<div class="text-xs text-red-600">Diskon: -Rp ${item.discount.toLocaleString('id-ID')}</div>` : ''}
                             </div>
                             <div class="text-right">
@@ -2108,6 +2124,222 @@
         function closeReceiptModal() {
             document.getElementById('receiptModal').classList.add('hidden');
             document.getElementById('receiptModal').classList.remove('flex');
+        }
+
+        // Profit Analysis Functions
+        function calculateProfit(transactions, startDate, endDate) {
+            console.log('Calculating profit for date range:', startDate, 'to', endDate);
+            
+            const filteredTransactions = transactions.filter(t => {
+                const transactionDate = new Date(t.date);
+                return transactionDate >= startDate && transactionDate <= endDate;
+            });
+            
+            console.log('Filtered transactions:', filteredTransactions);
+
+            let totalSales = 0;
+            let totalCost = 0;
+
+            filteredTransactions.forEach(transaction => {
+                console.log('Processing transaction:', transaction);
+                transaction.items.forEach(item => {
+                    if (!item.isService) {
+                        const product = products.find(p => p.id === item.id);
+                        if (product) {
+                            const itemSales = item.price * item.quantity - (item.discount || 0);
+                            const itemCost = (product.cost || 0) * item.quantity;
+                            totalSales += itemSales;
+                            totalCost += itemCost;
+                            console.log('Product:', product.name, 'Sales:', itemSales, 'Cost:', itemCost);
+                        } else {
+                            console.log('Product not found for item:', item);
+                        }
+                    } else {
+                        // For services, count only the sales (no cost)
+                        const itemSales = item.price * item.quantity - (item.discount || 0);
+                        totalSales += itemSales;
+                        console.log('Service:', item.name, 'Sales:', itemSales);
+                    }
+                });
+            });
+
+            const grossProfit = totalSales - totalCost;
+            const margin = totalSales > 0 ? (grossProfit / totalSales) * 100 : 0;
+
+            return {
+                totalSales,
+                totalCost,
+                grossProfit,
+                margin,
+                transactionCount: filteredTransactions.length
+            };
+        }
+
+        function updateProfitAnalysis() {
+            const timeRange = document.getElementById('profitTimeRange').value;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            let startDate = new Date(today);
+            let endDate = new Date(today);
+            endDate.setHours(23, 59, 59, 999);
+
+            switch (timeRange) {
+                case 'yesterday':
+                    startDate.setDate(today.getDate() - 1);
+                    endDate.setDate(today.getDate() - 1);
+                    break;
+                case 'week':
+                    startDate.setDate(today.getDate() - 7);
+                    break;
+                case 'month':
+                    startDate.setDate(1);
+                    break;
+                case 'last_month':
+                    startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                    endDate = new Date(today.getFullYear(), today.getMonth(), 0);
+                    break;
+            }
+
+            const profitData = calculateProfit(transactions, startDate, endDate);
+
+            // Update profit summary cards
+            document.getElementById('totalSalesAmount').textContent = `Rp ${profitData.totalSales.toLocaleString('id-ID')}`;
+            document.getElementById('totalCostAmount').textContent = `Rp ${profitData.totalCost.toLocaleString('id-ID')}`;
+            document.getElementById('grossProfitAmount').textContent = `Rp ${profitData.grossProfit.toLocaleString('id-ID')}`;
+            document.getElementById('profitMargin').textContent = `${profitData.margin.toFixed(1)}%`;
+
+            // Update profit chart
+            updateProfitChart(startDate, endDate);
+        }
+
+        function updateProfitChart(startDate, endDate) {
+            const ctx = document.getElementById('profitChart').getContext('2d');
+            const days = [];
+            const profits = [];
+            const sales = [];
+            const costs = [];
+
+            let currentDate = new Date(startDate);
+            while (currentDate <= endDate) {
+                const dayStart = new Date(currentDate);
+                const dayEnd = new Date(currentDate);
+                dayEnd.setHours(23, 59, 59, 999);
+
+                const dayData = calculateProfit(transactions, dayStart, dayEnd);
+                
+                days.push(currentDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }));
+                sales.push(dayData.totalSales);
+                costs.push(dayData.totalCost);
+                profits.push(dayData.grossProfit);
+
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+
+            // Destroy existing chart if it exists
+            if (window.profitChart instanceof Chart) {
+                window.profitChart.destroy();
+            }
+
+            // Update daily profit table
+            const tableBody = document.getElementById('dailyProfitTable');
+            tableBody.innerHTML = '';
+            
+            let totalSales = 0;
+            let totalCost = 0;
+            let totalProfit = 0;
+            let totalTransactions = 0;
+            
+            days.forEach((day, index) => {
+                const row = document.createElement('tr');
+                const profit = profits[index];
+                const sale = sales[index];
+                const cost = costs[index];
+                const margin = sale > 0 ? (profit / sale) * 100 : 0;
+                const dayStart = new Date(startDate);
+                dayStart.setDate(dayStart.getDate() + index);
+                const dayEnd = new Date(dayStart);
+                dayEnd.setHours(23, 59, 59, 999);
+                const dayData = calculateProfit(transactions, dayStart, dayEnd);
+                
+                totalSales += sale;
+                totalCost += cost;
+                totalProfit += profit;
+                totalTransactions += dayData.transactionCount;
+                
+                row.innerHTML = `
+                    <td class="px-4 py-3 text-sm">${day}</td>
+                    <td class="px-4 py-3 text-right text-sm text-green-600">Rp ${sale.toLocaleString('id-ID')}</td>
+                    <td class="px-4 py-3 text-right text-sm text-blue-600">Rp ${cost.toLocaleString('id-ID')}</td>
+                    <td class="px-4 py-3 text-right text-sm text-purple-600">Rp ${profit.toLocaleString('id-ID')}</td>
+                    <td class="px-4 py-3 text-right text-sm text-yellow-600">${margin.toFixed(1)}%</td>
+                    <td class="px-4 py-3 text-center text-sm">${dayData.transactionCount}</td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // Update totals
+            document.getElementById('totalTableSales').textContent = `Rp ${totalSales.toLocaleString('id-ID')}`;
+            document.getElementById('totalTableCost').textContent = `Rp ${totalCost.toLocaleString('id-ID')}`;
+            document.getElementById('totalTableProfit').textContent = `Rp ${totalProfit.toLocaleString('id-ID')}`;
+            document.getElementById('totalTableMargin').textContent = `${(totalSales > 0 ? (totalProfit / totalSales) * 100 : 0).toFixed(1)}%`;
+            document.getElementById('totalTableTransactions').textContent = totalTransactions;
+
+            window.profitChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: days,
+                    datasets: [
+                        {
+                            label: 'Laba Kotor',
+                            data: profits,
+                            borderColor: 'rgb(124, 58, 237)',
+                            backgroundColor: 'rgba(124, 58, 237, 0.1)',
+                            fill: true
+                        },
+                        {
+                            label: 'Penjualan',
+                            data: sales,
+                            borderColor: 'rgb(22, 163, 74)',
+                            borderDash: [5, 5],
+                            fill: false
+                        },
+                        {
+                            label: 'Modal',
+                            data: costs,
+                            borderColor: 'rgb(37, 99, 235)',
+                            borderDash: [5, 5],
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'Rp ' + value.toLocaleString('id-ID');
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': Rp ' + context.parsed.y.toLocaleString('id-ID');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         // Product management modal
@@ -2406,6 +2638,32 @@ products[productIndex] = {
             showNotification(`Produk "${productName}" berhasil dihapus!`, 'success');
         }
 
+        function deleteProduct(productId) {
+            // Cari produk berdasarkan ID
+            const productIndex = products.findIndex(product => product.id === productId);
+
+            if (productIndex !== -1) {
+                // Konfirmasi penghapusan
+                const confirmDelete = confirm(`Apakah Anda yakin ingin menghapus produk "${products[productIndex].name}"?`);
+
+                if (confirmDelete) {
+                    // Hapus produk dari array
+                    products.splice(productIndex, 1);
+
+                    // Perbarui localStorage
+                    saveData();
+
+                    // Render ulang daftar produk
+                    renderProducts();
+
+                    // Tampilkan notifikasi
+                    showNotification('Produk berhasil dihapus.', 'success');
+                }
+            } else {
+                showNotification('Produk tidak ditemukan.', 'error');
+            }
+        }
+
         // Dashboard and reports
         function updateDashboard() {
             const today = new Date().toDateString();
@@ -2643,7 +2901,7 @@ products[productIndex] = {
                 try {
                     const backupData = JSON.parse(e.target.result);
                     
-                    if (confirm('Yakin ingin restore data? Data saat ini akan ditimpa!')) {
+                    if (confirm('Yakin ingin restore data? Data saat ini akan ditimpa dengan data dari Google Sheets!')) {
                         products = backupData.products || [];
                         transactions = backupData.transactions || [];
                         
@@ -2711,7 +2969,7 @@ products[productIndex] = {
                 }
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 
                 return response.json();
@@ -2839,7 +3097,7 @@ products[productIndex] = {
                         <div class="flex justify-between text-sm">
                             <div>
                                 <div>${item.name}</div>
-                                <div class="text-xs text-gray-600">${item.quantity} x Rp ${item.price.toLocaleString('id-ID')}</div>
+                                <div class="text-xs text-gray-500">${item.quantity} x Rp ${item.price.toLocaleString('id-ID')}</div>
                                 ${item.discount > 0 ? `<div class="text-xs text-red-600">Diskon: -Rp ${item.discount.toLocaleString('id-ID')}</div>` : ''}
                             </div>
                             <div class="text-right">
@@ -2975,7 +3233,10 @@ products[productIndex] = {
             // Silent auto import - no loading notification
             
             // Your Google Apps Script URL
-            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyOLp3EFK2KWeMiRI86BZpG8PV4fhZuOMUAgj_tkIWsZszggEKSm1JKCIwM8oXa7CgO/exec';
+            // const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyOLp3EFK2KWeMiRI86BZpG8PV4fhZuOMUAgj_tkIWsZszggEKSm1JKCIwM8oXa7CgO/exec';
+
+           // url baru
+            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyqboj9hbLbEPpWQEVUtxxs8-bwimhsM2qj7CrX9t8iLzySIwk04F_AxFJc2HDQXK_v/exec';
             
             const importUrl = GOOGLE_SCRIPT_URL + '?action=import&timestamp=' + Date.now();
             
@@ -2984,16 +3245,27 @@ products[productIndex] = {
             const timeoutId = setTimeout(() => controller.abort(), 10000);
             
             fetch(importUrl, {
-                method: 'GET',
-                mode: 'cors',
+                method: 'POST',
+                mode: 'no-cors',
                 cache: 'no-cache',
+                headers: {
+                    'Content-Type': 'text/plain',
+                },
+                body: JSON.stringify(syncData),
                 signal: controller.signal
             })
             .then(response => {
                 clearTimeout(timeoutId);
                 
+                // For no-cors mode, we can't read the response
+                // But if we get here without error, the request was sent successfully
+                if (response.type === 'opaque') {
+                    // Silent success - no notification
+                    return;
+                }
+                
                 if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 
                 return response.json();
@@ -3047,7 +3319,10 @@ products[productIndex] = {
             }
             
             // Your Google Apps Script URL
-            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyOLp3EFK2KWeMiRI86BZpG8PV4fhZuOMUAgj_tkIWsZszggEKSm1JKCIwM8oXa7CgO/exec';
+            // const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyOLp3EFK2KWeMiRI86BZpG8PV4fhZuOMUAgj_tkIWsZszggEKSm1JKCIwM8oXa7CgO/exec';
+
+           // url baru
+            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyqboj9hbLbEPpWQEVUtxxs8-bwimhsM2qj7CrX9t8iLzySIwk04F_AxFJc2HDQXK_v/exec';
             
             const syncData = {
                 action: 'export',
@@ -3079,7 +3354,7 @@ products[productIndex] = {
                 // For no-cors mode, we can't read the response
                 // But if we get here without error, the request was sent successfully
                 if (response.type === 'opaque') {
-                    // Silent success - no notification for manual export
+                    // Silent success - no notification
                     return;
                 }
                 
@@ -3091,33 +3366,18 @@ products[productIndex] = {
             })
             .then(data => {
                 if (data && data.success) {
-                    // Silent success - no notification for manual export
+                    // Silent success - no notification
                 } else if (data) {
-                    throw new Error(data.error || 'Export gagal');
+                    console.log('Auto export warning:', data.error || 'Unknown error');
                 }
                 // If data is undefined, it means we already handled the opaque response above
             })
             .catch(error => {
                 clearTimeout(timeoutId);
-                console.error('Export error:', error);
+                console.log('Auto export failed (silent):', error.message);
                 
-                let errorMessage = '❌ Export gagal: ';
-                
-                if (error.name === 'AbortError') {
-                    errorMessage += 'Timeout - Google Script tidak merespons dalam 15 detik';
-                } else if (error.message.includes('Failed to fetch')) {
-                    errorMessage += 'Tidak dapat terhubung ke Google Script.\n\nPastikan:\n• Koneksi internet stabil\n• Google Apps Script sudah di-deploy\n• URL Google Script benar\n• Permission sudah diatur';
-                } else if (error.message.includes('CORS')) {
-                    errorMessage += 'CORS error - Google Script belum dikonfigurasi dengan benar';
-                } else if (error.message.includes('HTTP 404')) {
-                    errorMessage += 'Google Script tidak ditemukan - periksa URL';
-                } else if (error.message.includes('HTTP 403')) {
-                    errorMessage += 'Akses ditolak - periksa permission Google Script';
-                } else {
-                    errorMessage += error.message;
-                }
-                
-                showNotification(errorMessage, 'error');
+                // Silent failure for auto-export - no notification
+                // Data is still saved locally
             });
         }
 
@@ -3129,7 +3389,10 @@ products[productIndex] = {
             }
             
             // Your Google Apps Script URL
-            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyOLp3EFK2KWeMiRI86BZpG8PV4fhZuOMUAgj_tkIWsZszggEKSm1JKCIwM8oXa7CgO/exec';
+            // const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyOLp3EFK2KWeMiRI86BZpG8PV4fhZuOMUAgj_tkIWsZszggEKSm1JKCIwM8oXa7CgO/exec';
+
+            // url baru
+            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyqboj9hbLbEPpWQEVUtxxs8-bwimhsM2qj7CrX9t8iLzySIwk04F_AxFJc2HDQXK_v/exec';
             
             if (!confirm('Import data dari Google Sheets?\n\nData lokal saat ini akan ditimpa dengan data dari Google Sheets!')) {
                 return;
@@ -3168,10 +3431,14 @@ products[productIndex] = {
                     let importCount = 0;
                     let importDetails = [];
                     
+                    // Reset arrays sebelum import
+                    products = [];
+                    transactions = [];
+                    
                     if (importedData.products && importedData.products.length > 0) {
-                        products = importedData.products;
-                        importCount += importedData.products.length;
-                        importDetails.push(`${importedData.products.length} produk`);
+                        products = importedData.products.filter(p => !p.isDeleted);
+                        importCount += products.length;
+                        importDetails.push(`${products.length} produk`);
                     }
                     
                     if (importedData.transactions && importedData.transactions.length > 0) {
@@ -3184,7 +3451,6 @@ products[productIndex] = {
                         throw new Error('Tidak ada data untuk diimpor dari Google Sheets');
                     }
                     
-                    // Save to localStorage
                     saveData();
                     
                     // Update UI
