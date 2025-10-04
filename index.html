@@ -166,6 +166,7 @@
                             <div id="scannerContainer" class="scanner-container mx-auto mb-2 md:mb-4 hidden">
                                 <video id="scanner-video" class="rounded-lg"></video>
                                 <div class="scanner-overlay"></div>
+                                <button type="button" onclick="closeScannerModal()" class="mt-2 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-700 w-full">Batal</button>
                             </div>
                         </div>
 
@@ -211,7 +212,7 @@
                                 <button onclick="showAddProductModal()" class="w-full mobile-btn bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors touch-target">➕ Produk</button>
                                 <div class="grid grid-cols-2 gap-1">
                                     <button onclick="syncToGoogleSheets()" class="mobile-btn bg-green-600 text-white rounded hover:bg-green-700 transition-colors touch-target">📤 Export</button>
-                                    <button onclick="importFromGoogleSheets()" class="mobile-btn bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors touch-target">📥 Import</button>
+                                    <button onclick="importFromGoogleSheets()" class="mobile-btn bg-blue-600 text-white rounded hover:bg-purple-700 transition-colors touch-target">📥 Import</button>
                                 </div>
                             </div>
                         </div>
@@ -1253,7 +1254,7 @@
                     <button onclick="openCameraSettings()" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors font-medium">
                         ${settingsIcon} Buka Pengaturan ${browserName}
                     </button>
-                    <button onclick="hidePermissionResetButton()" class="w-full bg-gray-400 text-white py-2 px-4 rounded-lg hover:bg-gray-500 transition-colors">
+                    <button onclick="hidePermissionResetButton()" class="w-full bg-gray-400 text-white py-2 px-4
                         ✕ Tutup Panel
                     </button>
                 </div>
@@ -3223,12 +3224,21 @@ products[productIndex] = {
                         // Validate and parse transactions
                         const parsedTransactions = importedTransactions.map(transaction => {
                             try {
-                                const items = transaction.items.map(item => ({
-                                    name: item.name,
-                                    quantity: parseInt(item.quantity, 10) || 0,
-                                    price: parseFloat(item.price) || 0,
-                                    discount: parseFloat(item.discount) || 0
-                                }));
+                                const items = transaction.items.map(item => {
+                                    // Cari produk berdasarkan nama (case-insensitive)
+                                    let product = products.find(p => p.name.trim().toLowerCase() === String(item.name).trim().toLowerCase());
+                                    // Jika tidak ketemu, fallback ke pencarian barcode jika ada
+                                    if (!product && item.barcode) {
+                                        product = products.find(p => p.barcode && p.barcode === item.barcode);
+                                    }
+                                    return {
+                                        id: product ? product.id : undefined,
+                                        name: item.name,
+                                        quantity: parseInt(item.quantity, 10) || 0,
+                                        price: parseFloat(item.price) || 0,
+                                        discount: parseFloat(item.discount) || 0
+                                    };
+                                });
 
                                 const date = new Date(transaction.date);
 
