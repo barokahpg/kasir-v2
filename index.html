@@ -1411,6 +1411,16 @@
                                     stopScanner();
                                 } else {
                                     showNotification(`🔍 Produk dengan barcode ${barcode} tidak ditemukan.`, 'warning');
+                                    stopScanner();
+                                    // Tampilkan form tambah produk dengan barcode terisi otomatis
+                                    showAddProductModal();
+                                    setTimeout(() => {
+                                        const barcodeInput = document.getElementById('newProductBarcode');
+                                        if (barcodeInput) {
+                                            barcodeInput.value = barcode;
+                                            barcodeInput.focus();
+                                        }
+                                    }, 300);
                                 }
                             }
 
