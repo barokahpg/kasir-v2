@@ -714,87 +714,11 @@
         let isScanning = false;
         let codeReader = null;
 
-        // Low Stock Modal Function
-        function showLowStockDetails() {
-            const lowStockItems = products.filter(p => p.stock <= p.minStock);
-            const modalContent = document.createElement('div');
-            modalContent.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-            modalContent.innerHTML = `
-                <div class="bg-white bg-opacity-95 backdrop-blur-sm rounded-lg p-6 w-full max-w-2xl mx-4">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-medium text-gray-900">Daftar Produk Stok Menipis</h3>
-                        <button onclick="this.closest('.fixed').remove()" class="text-gray-500 hover:text-gray-700">✕</button>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Produk</th>
-                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Stok</th>
-                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Min. Stok</th>
-                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Harga Modal</th>
-                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Harga Jual</th>
-                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                ${lowStockItems.map(item => `
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-4 py-3">
-                                            <div class="text-sm font-medium text-gray-900">${item.name}</div>
-                                            <div class="text-xs text-gray-500">ID: ${item.id}</div>
-                                        </td>
-                                        <td class="px-4 py-3 text-center ${item.stock <= 0 ? 'text-red-600 font-bold' : 'text-orange-600'}">
-                                            ${item.stock}
-                                        </td>
-                                        <td class="px-4 py-3 text-center text-gray-500">
-                                            ${item.minStock}
-                                        </td>
-                                        <td class="px-4 py-3 text-right text-gray-900">
-                                            Rp ${item.cost.toLocaleString('id-ID')}
-                                        </td>
-                                        <td class="px-4 py-3 text-right text-gray-900">
-                                            Rp ${item.price.toLocaleString('id-ID')}
-                                        </td>
-                                        <td class="px-4 py-3 text-center">
-                                            <span class="px-2 py-1 text-xs font-medium rounded-full ${
-                                                item.stock <= 0 
-                                                    ? 'bg-red-100 text-red-800' 
-                                                    : 'bg-yellow-100 text-yellow-800'
-                                            }">
-                                                ${item.stock <= 0 ? 'Habis' : 'Menipis'}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="mt-4 text-right">
-                        <button onclick="this.closest('.fixed').remove()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
-                            Tutup
-                        </button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modalContent);
-        }
-
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
             loadData();
             updateTime();
             setInterval(updateTime, 1000);
-            
-            // Initialize low stock click handlers
-            const lowStockElements = ['lowStock', 'lowStockQuick'].map(id => document.getElementById(id));
-            lowStockElements.forEach(element => {
-                if (element) {
-                    element.style.cursor = 'pointer';
-                    element.classList.add('hover:text-red-600', 'transition-colors');
-                    element.onclick = showLowStockDetails;
-                }
-            });
             
             // Monitor online status
             updateOnlineStatus();
@@ -1335,6 +1259,7 @@
                 </div>
                 
                 <div class="bg-white border border-red-200 rounded-lg p-3 text-xs">
+
                     <h5 class="font-semibold text-gray-800 mb-2">🔧 Panduan Manual:</h5>
                     <div class="space-y-2 text-gray-700">
                         ${isMobile ? `
@@ -1905,8 +1830,16 @@
             const received = parseInt(document.getElementById('paymentReceived').value) || 0;
             const change = received - total;
             
-            document.getElementById('paymentChange').value = change >= 0 ? `Rp ${change.toLocaleString('id-ID')}` : 'Kurang bayar';
-            document.getElementById('completeBtn').disabled = change < 0;
+            if (received < total) {
+                const shortage = total - received;
+                document.getElementById('paymentChange').value = `Kurang: Rp ${shortage.toLocaleString('id-ID')}`;
+                document.getElementById('paymentChange').style.color = 'red'; // Highlight the shortage in red
+                document.getElementById('completeBtn').disabled = true;
+            } else {
+                document.getElementById('paymentChange').value = `Rp ${change.toLocaleString('id-ID')}`;
+                document.getElementById('paymentChange').style.color = 'green'; // Highlight the change in green
+                document.getElementById('completeBtn').disabled = false;
+            }
         }
 
         function completeTransaction() {
@@ -1917,9 +1850,11 @@
             if (change < 0) return;
             
             // Create transaction
+            // Buat transaksi dengan waktu yang tepat
+            const now = new Date();
             const transaction = {
                 id: 'TRX' + Date.now(),
-                date: new Date().toISOString(),
+                date: now.toISOString(), // Simpan dalam format ISO untuk konsistensi
                 items: [...cart],
                 total: total,
                 received: received,
@@ -2930,20 +2865,42 @@ products[productIndex] = {
             // const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyOLp3EFK2KWeMiRI86BZpG8PV4fhZuOMUAgj_tkIWsZszggEKSm1JKCIwM8oXa7CgO/exec';
 
             // url baru
-            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyqboj9hbLbEPpWQEVUtxxs8-bwimhsM2qj7CrX9t8iLzySIwk04F_AxFJc2HDQXK_v/exec';
+            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwMVow5Z3qviKO8_5-XLXsmd7sfzfK9LLqH_KzAr9HxzGudAl0aTtIbCyzG_wQhLWQO/exec';
             
+            // Format tanggal untuk Google Sheets
+            const formatDate = (dateStr) => {
+                const d = new Date(dateStr);
+                // Simpan tanggal asli tanpa konversi timezone
+                return d.toLocaleString('id-ID', { 
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false,
+                    timeZone: 'Asia/Jakarta'
+                });
+            };
+
+            // Format transaksi sebelum dikirim
+            const formattedTransactions = transactions.map(t => ({
+                ...t,
+                date: t.date // Kirim tanggal asli tanpa diformat ulang
+            }));
+
             const syncData = {
                 action: 'export',
                 actionType: actionType,
                 description: description,
-                transactions: transactions,
+                transactions: formattedTransactions,
                 products: products,
-                timestamp: new Date().toISOString()
+                timestamp: formatDate(new Date())
             };
             
             // Silent auto-export - no loading notification
             
-            // Create timeout controller with shorter timeout for auto export
+            // Create timeout controller with shorter timeout
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 8000);
             
@@ -3236,78 +3193,79 @@ products[productIndex] = {
             // const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyOLp3EFK2KWeMiRI86BZpG8PV4fhZuOMUAgj_tkIWsZszggEKSm1JKCIwM8oXa7CgO/exec';
 
            // url baru
-            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyqboj9hbLbEPpWQEVUtxxs8-bwimhsM2qj7CrX9t8iLzySIwk04F_AxFJc2HDQXK_v/exec';
+            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwMVow5Z3qviKO8_5-XLXsmd7sfzfK9LLqH_KzAr9HxzGudAl0aTtIbCyzG_wQhLWQO/exec';
             
-            const importUrl = GOOGLE_SCRIPT_URL + '?action=import&timestamp=' + Date.now();
+            const importUrl = `${GOOGLE_SCRIPT_URL}?action=import&timestamp=${Date.now()}`;
             
-            // Create timeout controller with shorter timeout for auto import
+            // Create timeout controller with longer timeout
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000);
+            const timeoutId = setTimeout(() => controller.abort(), 20000);
             
             fetch(importUrl, {
-                method: 'POST',
-                mode: 'no-cors',
+                method: 'GET',
                 cache: 'no-cache',
-                headers: {
-                    'Content-Type': 'text/plain',
-                },
-                body: JSON.stringify(syncData),
                 signal: controller.signal
             })
-            .then(response => {
-                clearTimeout(timeoutId);
-                
-                // For no-cors mode, we can't read the response
-                // But if we get here without error, the request was sent successfully
-                if (response.type === 'opaque') {
-                    // Silent success - no notification
-                    return;
-                }
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
-                return response.json();
-            })
-            .then(data => {
-                if (data && data.success && data.data) {
-                    const importedData = data.data;
-                    
-                    let hasUpdates = false;
-                    
-                    if (importedData.products && importedData.products.length > 0) {
-                        products = importedData.products;
-                        hasUpdates = true;
+                .then(response => {
+                    clearTimeout(timeoutId);
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                     }
-                    
-                    if (importedData.transactions && importedData.transactions.length > 0) {
-                        transactions = importedData.transactions;
-                        hasUpdates = true;
-                    }
-                    
-                    if (hasUpdates) {
-                        // Save to localStorage
+
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success && data.data) {
+                        const importedProducts = data.data.products || [];
+                        const importedTransactions = data.data.transactions || [];
+
+                        // Validate and parse transactions
+                        const parsedTransactions = importedTransactions.map(transaction => {
+                            try {
+                                const items = transaction.items.map(item => ({
+                                    name: item.name,
+                                    quantity: parseInt(item.quantity, 10) || 0,
+                                    price: parseFloat(item.price) || 0,
+                                    discount: parseFloat(item.discount) || 0
+                                }));
+
+                                const date = new Date(transaction.date);
+
+                                return {
+                                    id: transaction.id,
+                                    date: date.toISOString(),
+                                    total: parseFloat(transaction.total) || 0,
+                                    received: parseFloat(transaction.received) || 0,
+                                    change: parseFloat(transaction.change) || 0,
+                                    items
+                                };
+                            } catch (error) {
+                                console.error('Error parsing transaction:', transaction, error);
+                                return null;
+                            }
+                        }).filter(transaction => transaction !== null);
+
+                        // Update local data
+                        products = importedProducts;
+                        transactions = parsedTransactions;
+
                         saveData();
-                        
-                        // Update UI
                         renderProducts();
+                        renderTransactionHistory();
                         updateDashboard();
-                        
-                        // Silent success - no notification
+
+                        alert('Data berhasil diimpor dari Google Sheets!');
                     } else {
-                        // Silent - data already up to date
+                        console.error('Import failed:', data.error || 'Unknown error');
+                        alert('Gagal mengimpor data dari Google Sheets. Periksa log untuk detailnya.');
                     }
-                } else {
-                    // Silent fail for auto import - just use local data
-                    console.log('Auto import: No data from Google Sheets, using local data');
-                }
-            })
-            .catch(error => {
-                clearTimeout(timeoutId);
-                console.log('Auto import failed (silent):', error.message);
-                // Don't show error notification for auto import - just continue with local data
-            });
+                })
+                .catch(error => {
+                    clearTimeout(timeoutId);
+                    console.error('Import failed:', error);
+                    alert('Gagal mengimpor data dari Google Sheets. Periksa koneksi internet Anda dan coba lagi.');
+                });
         }
 
         // Google Sheets Export & Import
@@ -3322,7 +3280,7 @@ products[productIndex] = {
             // const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyOLp3EFK2KWeMiRI86BZpG8PV4fhZuOMUAgj_tkIWsZszggEKSm1JKCIwM8oXa7CgO/exec';
 
            // url baru
-            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyqboj9hbLbEPpWQEVUtxxs8-bwimhsM2qj7CrX9t8iLzySIwk04F_AxFJc2HDQXK_v/exec';
+            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwMVow5Z3qviKO8_5-XLXsmd7sfzfK9LLqH_KzAr9HxzGudAl0aTtIbCyzG_wQhLWQO/exec';
             
             const syncData = {
                 action: 'export',
@@ -3384,111 +3342,104 @@ products[productIndex] = {
         function importFromGoogleSheets() {
             // Check if online first
             if (!navigator.onLine) {
-                showNotification('❌ Tidak ada koneksi internet!', 'error');
+                console.log('Offline - skipping import from Google Sheets');
                 return;
             }
-            
-            // Your Google Apps Script URL
-            // const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyOLp3EFK2KWeMiRI86BZpG8PV4fhZuOMUAgj_tkIWsZszggEKSm1JKCIwM8oXa7CgO/exec';
 
-            // url baru
-            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyqboj9hbLbEPpWQEVUtxxs8-bwimhsM2qj7CrX9t8iLzySIwk04F_AxFJc2HDQXK_v/exec';
-            
+            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwMVow5Z3qviKO8_5-XLXsmd7sfzfK9LLqH_KzAr9HxzGudAl0aTtIbCyzG_wQhLWQO/exec';
+
             if (!confirm('Import data dari Google Sheets?\n\nData lokal saat ini akan ditimpa dengan data dari Google Sheets!')) {
                 return;
             }
-            
-            // Silent import - no loading notification
-            
-            // Use simple GET method with better error handling
-            const importUrl = GOOGLE_SCRIPT_URL + '?action=import&timestamp=' + Date.now();
-            
+
+            const importUrl = `${GOOGLE_SCRIPT_URL}?action=import&timestamp=${Date.now()}`;
+
             // Create timeout controller with longer timeout
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 20000);
-            
-            // Try CORS first, then fallback to no-cors
+
             fetch(importUrl, {
                 method: 'GET',
-                mode: 'cors',
                 cache: 'no-cache',
                 signal: controller.signal
             })
-            .then(response => {
-                clearTimeout(timeoutId);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
-                return response.json();
-            })
-            .then(data => {
-                if (data && data.success && data.data) {
-                    // Successfully got data from Google Sheets
-                    const importedData = data.data;
-                    
-                    let importCount = 0;
-                    let importDetails = [];
-                    
-                    // Reset arrays sebelum import
-                    products = [];
-                    transactions = [];
-                    
-                    if (importedData.products && importedData.products.length > 0) {
-                        products = importedData.products.filter(p => !p.isDeleted);
-                        importCount += products.length;
-                        importDetails.push(`${products.length} produk`);
+                .then(response => {
+                    clearTimeout(timeoutId);
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                     }
-                    
-                    if (importedData.transactions && importedData.transactions.length > 0) {
-                        transactions = importedData.transactions;
-                        importCount += importedData.transactions.length;
-                        importDetails.push(`${importedData.transactions.length} transaksi`);
+
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success && data.data) {
+                        const importedProducts = data.data.products || [];
+                        const importedTransactions = data.data.transactions || [];
+
+                        // Validate and parse transactions
+                        const parsedTransactions = importedTransactions.map(transaction => {
+                            try {
+                                const items = transaction.items.map(item => ({
+                                    name: item.name,
+                                    quantity: parseInt(item.quantity, 10) || 0,
+                                    price: parseFloat(item.price) || 0,
+                                    discount: parseFloat(item.discount) || 0
+                                }));
+
+                                const date = new Date(transaction.date);
+
+                                return {
+                                    id: transaction.id,
+                                    date: date.toISOString(),
+                                    total: parseFloat(transaction.total) || 0,
+                                    received: parseFloat(transaction.received) || 0,
+                                    change: parseFloat(transaction.change) || 0,
+                                    items
+                                };
+                            } catch (error) {
+                                console.error('Error parsing transaction:', transaction, error);
+                                return null;
+                            }
+                        }).filter(transaction => transaction !== null);
+
+                        // Update local data
+                        products = importedProducts;
+                        transactions = parsedTransactions;
+
+                        saveData();
+                        renderProducts();
+                        renderTransactionHistory();
+                        updateDashboard();
+
+                        alert('Data berhasil diimpor dari Google Sheets!');
+                    } else {
+                        console.error('Import failed:', data.error || 'Unknown error');
+                        alert('Gagal mengimpor data dari Google Sheets. Periksa log untuk detailnya.');
                     }
-                    
-                    if (importCount === 0) {
-                        throw new Error('Tidak ada data untuk diimpor dari Google Sheets');
-                    }
-                    
-                    saveData();
-                    
-                    // Update UI
-                    renderProducts();
-                    renderProductList();
-                    updateDashboard();
-                    renderTransactionHistory();
-                    
-                    // Silent success - no notification for manual import
-                } else if (data && data.success === false && data.error) {
-                    throw new Error(`Google Apps Script error: ${data.error}`);
-                } else {
-                    throw new Error('Response dari Google Sheets tidak valid atau kosong');
-                }
-            })
-            .catch(error => {
-                clearTimeout(timeoutId);
-                console.error('Import error:', error);
-                
-                let errorMessage = '❌ Import gagal: ';
-                
-                if (error.name === 'AbortError') {
-                    errorMessage += 'Timeout (20 detik) - Google Script tidak merespons';
-                } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-                    errorMessage += 'Tidak dapat terhubung ke Google Script';
-                } else if (error.message.includes('CORS')) {
-                    errorMessage += 'CORS Policy Error';
-                } else if (error.message.includes('HTTP 404')) {
-                    errorMessage += 'Google Script tidak ditemukan (404)';
-                } else if (error.message.includes('HTTP 403')) {
-                    errorMessage += 'Akses ditolak (403) - periksa permission';
-                } else {
-                    errorMessage += error.message;
-                }
-                
-                showNotification(errorMessage, 'error');
-            });
+                })
+                .catch(error => {
+                    clearTimeout(timeoutId);
+                    console.error('Import failed:', error);
+                    alert('Gagal mengimpor data dari Google Sheets. Periksa koneksi internet Anda dan coba lagi.');
+                });
         }
+
+        document.getElementById('lowStock').addEventListener('click', () => {
+            const lowStockProducts = products.filter(product => product.stock <= product.minStock);
+
+            if (lowStockProducts.length === 0) {
+                alert('Tidak ada produk dengan stok menipis atau kosong.');
+                return;
+            }
+
+            let productList = 'Produk dengan stok menipis atau kosong:\n';
+            lowStockProducts.forEach(product => {
+                productList += `- ${product.name} (Stok: ${product.stock})\n`;
+            });
+
+            alert(productList);
+        });
     </script>
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9874fbb922ac1333',t:'MTc1OTI0ODU1Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
